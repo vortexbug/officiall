@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VORTEX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    /* Global Reset and Base Styles */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: rgba(0, 0, 0, 1);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 20px;
+      position: relative; 
+      overflow-x: hidden; 
+    }
+
+    /* Main App Container (for smooth animation with sidebar) */
+    .app-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 420px;
+        transition: transform 0.3s ease;
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Header/Title */
+    h1.main-title {
+      font-family: 'Orbitron', sans-serif;
+      color: white;
+      font-size: 32px;
+      margin-bottom: 30px;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 1);
+      letter-spacing: 2px;
+    }
+
+    /* Main Content Panels */
+    .container {
+      background: black;
+      border: 1px solid white;
+      padding: 24px;
+      border-radius: 20px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 0 25px rgba(255, 255, 255, 1);
+      backdrop-filter: blur(5px);
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    /* Profile Card and Details */
+    .profile-card {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .profile-logo {
+      width: 100px; height: 100px; margin: 0 auto 15px; display: block; border-radius: 50%;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 1); border: 3px solid white; object-fit: cover;
+    }
+    .profile-username { font-family: 'Orbitron', sans-serif; font-size: 24px; color: #E0E0E0; font-weight: bold; margin-bottom: 8px; }
+    .profile-details { font-size: 14px; color: #9A9A9A; }
+    .profile-details span { color: white; font-weight: 600; }
+
+    /* Section Titles and Inputs */
+    .section-title { font-family: 'Orbitron', sans-serif; font-size: 18px; color: white; margin-bottom: 15px; text-align: left; text-transform: uppercase; letter-spacing: 1px; }
+    input[type="text"], select, textarea { width: 100%; padding: 14px 18px; border-radius: 10px; background: rgba(0, 0, 0, 1); border: 1px solid rgba(255, 255, 255, 1); color: #E0E0E0; margin-bottom: 25px; font-size: 16px; font-family: 'Montserrat', sans-serif; outline: none; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+    select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23E0E0E0" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 15px center; padding-right: 40px; }
+    
+    /* Execute Button */
+    .execute-button { background: linear-gradient(90deg,  white, black); color: white; padding: 18px; width: 100%; border-radius: 10px; font-weight: bold; border: none; margin-bottom: 12px; cursor: pointer; font-size: 18px; letter-spacing: 1px; transition: 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 0 15px rgba(128, 128, 128, 1); }
+    .execute-button:disabled { background: gray; cursor: not-allowed; opacity: 0.6; box-shadow: none; }
+    .execute-button:hover:not(:disabled) { background: linear-gradient(90deg, white, black); box-shadow: 0 0 25px rgba(255, 255, 255, 1); }
+
+    /* Footer Action - DIHAPUS */
+    .footer-action-container { display: none; }
+
+    /* Popup */
+    .popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: black; color: white; padding: 16px 22px; border-radius: 12px; box-shadow: 0 0 20px rgba(255, 255, 255, 1); font-weight: bold; display: none; z-index: 9999; animation: zoomFade 2s ease forwards; text-align: center; }
+    @keyframes zoomFade { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 15% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 85% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } }
+
+    /* ======================================= */
+    /* DARKVERSE DASHBOARD STYLES */
+    /* ======================================= */
+    .darkverse-dashboard {
+        display: none;
+        width: 100%;
+        max-width: 420px;
+    }
+
+    .darkverse-dashboard.active {
+        display: block;
+    }
+
+    .darkverse-header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid white;
+    }
+    .darkverse-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 28px;
+      color: white;
+      margin-bottom: 10px;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 1);
+    }
+    .darkverse-subtitle {
+      font-size: 14px;
+      color: #9A9A9A;
+      margin-bottom: 15px;
+    }
+    .darkverse-contact {
+      background: rgba(0, 0, 0, 1);
+      border: 1px solid rgba(255, 255, 255, 1);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 14px;
+      color: white;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .darkverse-contact i {
+      margin-right: 8px;
+    }
+    
+    /* Menu Buttons */
+    .darkverse-menu {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+    .darkverse-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 15px 10px;
+      background: black;
+      border: 1px solid white;
+      border-radius: 10px;
+      color: #E0E0E0;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      min-height: 80px;
+    }
+    .darkverse-button i {
+      color: black;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .darkverse-button:hover {
+      background: black;
+      border-color: white;
+      transform: translateY(-3px);
+    }
+    
+    /* Telegram Channel */
+    .telegram-channel {
+      background: rgba(0, 136, 204, 0.1);
+      border: 1px solid #0088cc;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    .telegram-title {
+      font-size: 16px;
+      color: #0088cc;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .telegram-desc {
+      font-size: 13px;
+      color: #9A9A9A;
+    }
+    
+    /* Server Stats */
+    .server-stats {
+      margin-bottom: 25px;
+    }
+    .stats-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      color: white;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .stat-card {
+      background: black;
+      border: 1px solid white;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+    }
+    .stat-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 24px;
+      color: white;
+      margin-bottom: 5px;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: white;
+    }
+
+    /* Hamburger Button */
+    #openSidebarBtn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: black;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 1);
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 50; 
+      transition: all 0.3s ease;
+    }
+    #openSidebarBtn:hover {
+      background: black;
+      transform: scale(1.05);
+    }
+    
+    /* ======================================= */
+    /* MUSIC PLAYER DASHBOARD STYLES */
+    /* ======================================= */
+    .music-player-dashboard {
+        display: none; 
+        text-align: center;
+        padding-top: 20px;
+    }
+
+    .music-player-dashboard.active {
+        display: block;
+    }
+
+    .player-controls button {
+        background: black;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        margin: 0 10px;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    .player-controls button:hover {
+        background: black;
+    }
+    .song-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 18px;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 0 0 5px rgba(255, 255, 255, 1);
+    }
+    
+    /* Progress Bar (Garis waktu lagu) */
+    #progressContainer {
+        width: 100%;
+        height: 8px;
+        background: rgba(255, 255, 255, 1);
+        border-radius: 4px;
+        margin-top: 30px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        overflow: hidden;
+    }
+    #progressBar {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, white, black);
+        transition: width 0.1s linear;
+    }
+    .time-display {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: white;
+        margin-bottom: 30px;
+    }
+
+    /* Dashboard Visibility */
+    .dashboard-page {
+        display: none;
+    }
+    .dashboard-page.active {
+        display: block;
+    }
+
+    /* ======================================= */
+    /* PROFILE ICON STYLES */
+    /* ======================================= */
+    #profileIcon {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: black;
+      border: 2px solid white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 50;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 1);
+    }
+
+    #profileIcon:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 1);
+    }
+
+    /* Profile Info Panel */
+    #profileInfoPanel {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: black;
+      border: 2px solid rgba(255, 255, 255, 1);
+      border-radius: 20px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 1);
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #profileInfoPanel.active {
+      display: flex;
+      animation: fadeInScale 0.3s ease forwards;
+    }
+
+    @keyframes fadeInScale {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .profile-info-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 25px;
+    }
+
+    .profile-info-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 22px;
+      color: white;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 1);
+    }
+
+    #closeProfileInfoBtn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    #closeProfileInfoBtn:hover {
+      color: #fff;
+    }
+
+    .profile-info-content {
+      width: 100%;
+      text-align: center;
+    }
+
+    .profile-info-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px solid white;
+      margin: 0 auto 20px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 1);
+    }
+
+    .profile-info-username {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 24px;
+      color: #E0E0E0;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .profile-info-details {
+      background: black;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      border: 1px solid white;
+    }
+
+    .profile-info-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid white;
+    }
+
+    .profile-info-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .profile-info-label {
+      color: #9A9A9A;
+      font-size: 14px;
+    }
+
+    .profile-info-value {
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    /* Overlay */
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1500;
+      display: none;
+    }
+
+    #overlay.active {
+      display: block;
+    }
+
+    /* ======================================= */
+    /* ✅ ASEP ROKOK BACKGROUND STYLES */
+    /* ======================================= */
+    #smoke-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .smoke-particle {
+      position: absolute;
+      bottom: 0;
+      width: 5px;
+      height: 5px;
+      background-color: rgba(255, 255, 255, 1);
+      border-radius: 50%;
+      filter: blur(2px);
+      animation: smoke-rise linear infinite;
+    }
+
+    @keyframes smoke-rise {
+      0% {
+        transform: translateY(0) translateX(0) scale(0.5);
+        opacity: 0.8;
+      }
+      50% {
+        transform: translateY(-50vh) translateX(10px) scale(1.5);
+        opacity: 0.5;
+      }
+      100% {
+        transform: translateY(-100vh) translateX(20px) scale(2);
+        opacity: 0;
+      }
+    }
+
+    /* ======================================= */
+    /* IP CHECK DASHBOARD STYLES */
+    /* ======================================= */
+    .ip-info-result {
+      background: black;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      border: 1px solid white;
+      display: none;
+    }
+
+    .ip-info-result.active {
+      display: block;
+    }
+
+    .ip-info-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid white;
+    }
+
+    .ip-info-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .ip-info-label {
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .ip-info-value {
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      text-align: right;
+      max-width: 60%;
+      word-break: break-word;
+    }
+
+    .loading-spinner {
+      display: none;
+      text-align: center;
+      color: white;
+      margin: 20px 0;
+    }
+
+    .loading-spinner.active {
+      display: block;
+    }
+
+    .spinner {
+      border: 3px solid white;
+      border-top: 3px solid white;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* ======================================= */
+    /* YOUTUBE DOWNLOADER STYLES */
+    /* ======================================= */
+    .youtube-downloader {
+        display: none;
+    }
+
+    .youtube-downloader.active {
+        display: block;
+    }
+
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      background: black;
+      border-radius: 10px;
+      margin: 10px 0;
+      cursor: pointer;
+      padding: 12px;
+      transition: 0.3s;
+      border: 1px solid white;
+    }
+
+    .search-result-item:hover {
+      background: black;
+      border-color: white;
+    }
+
+    .search-result-item img {
+      width: 80px;
+      height: 60px;
+      border-radius: 6px;
+      margin-right: 12px;
+      border: 1px solid white;
+    }
+
+    .search-result-info {
+      text-align: left;
+      flex: 1;
+    }
+
+    .search-result-info h5 {
+      color: white;
+      font-size: 14px;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .search-result-info p {
+      color: white;
+      font-size: 12px;
+      margin: 0;
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+
+    .status-processing { background: white; }
+    .status-success { background: white; }
+    .status-error { background: red; }
+
+    .youtube-player {
+      background: black;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      border: 1px solid white;
+      display: none;
+    }
+
+    .youtube-player.active {
+      display: block;
+    }
+
+    .youtube-player h3 {
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      margin-bottom: 10px;
+    }
+
+    .youtube-player p {
+      color: white;
+      margin-bottom: 15px;
+    }
+
+    .youtube-audio {
+      width: 100%;
+      margin: 15px 0;
+    }
+
+    .youtube-controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+
+    .youtube-controls button {
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .youtube-controls button:hover {
+      background: black;
+    }
+
+    /* ======================================= */
+    /* CHAT AI DASHBOARD STYLES - UPDATED */
+    /* ======================================= */
+    .chat-ai-dashboard {
+        display: none;
+    }
+
+    .chat-ai-dashboard.active {
+        display: block;
+    }
+
+    .chat-container {
+      background: black;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      border: 1px solid white;
+      max-height: 450px; /* Diperbesar */
+      min-height: 450px; /* Diperbesar */
+      overflow-y: auto;
+    }
+
+    .chat-message {
+      margin-bottom: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      max-width: 85%;
+      word-wrap: break-word;
+    }
+
+    .user-message {
+      background: black;
+      border: 1px solid white;
+      margin-left: auto;
+      text-align: right;
+    }
+
+    .ai-message {
+      background: black;
+      border: 1px solid white;
+      margin-right: auto;
+    }
+
+    .message-sender {
+      font-weight: 600;
+      margin-bottom: 5px;
+      font-size: 12px;
+      color: white;
+    }
+
+    .message-content {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .chat-input-container {
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
+  align-items: center; /* ✅ sejajarkan tombol dengan input */
+}
+
+    .chat-input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: black;
+  border: 1px solid white;
+  color: white;
+  font-family: 'Montserrat', sans-serif;
+  resize: none;
+  min-height: 45px; /* ✅ samakan dengan tombol */
+  outline: none;
+  font-size: 14px;
+}
+
+.send-button {
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 0 18px; /* ✅ biar tinggi tombol proporsional */
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 45px; /* ✅ sejajar dengan input */
+  font-size: 14px;
+}
+
+    .send-button:hover {
+      background: black;
+    }
+
+    .send-button:disabled {
+      background: black;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .typing-indicator {
+      display: none;
+      color: white;
+      font-style: italic;
+      margin: 10px 0;
+      text-align: left;
+    }
+
+    .typing-indicator.active {
+      display: block;
+    }
+
+    .clear-chat-btn {
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid #ff4444;
+      color: #ff4444;
+      border-radius: 8px;
+      padding: 8px 15px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+
+    .clear-chat-btn:hover {
+      background: #ff4444;
+      color: #1A0526;
+    }
+
+    .api-status {
+      font-size: 12px;
+      color: #00ff5e;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<!-- ======= Bottom Navigation (Tema Ungu Glow, Transisi Halus) ======= -->
+<style>
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 1);
+    border-top: 1px solid white;
+    box-shadow: 0 -4px 20px rgba(255, 255, 255, 1);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+    z-index: 1200;
+    backdrop-filter: blur(6px);
+  }
+
+  .bottom-nav button {
+    background: none;
+    border: none;
+    color: white;
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .bottom-nav button i {
+    font-size: 20px;
+    transition: all 0.3s ease;
+  }
+
+  /* Efek Tombol Aktif (Glow Ungu Lembut seperti Tema Aplikasi) */
+  .bottom-nav button.active {
+    color: white;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 1);
+    transform: translateY(-3px);
+  }
+
+  .bottom-nav button.active i {
+    color: white;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 1);
+  }
+
+  .bottom-nav button.active::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 55px;
+    height: 55px;
+    background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 70%);
+    border-radius: 50%;
+    z-index: -1;
+    filter: blur(4px);
+    transition: opacity 0.3s ease;
+  }
+
+  .bottom-nav button:active {
+    transform: scale(0.96);
+    opacity: 0.9;
+  }
+
+  @media (max-width: 400px) {
+    .bottom-nav button i { font-size: 18px; }
+    .bottom-nav button span { font-size: 11px; }
+  }
+</style>
+
+<div class="bottom-nav" id="bottomNav">
+  <button id="navAttackBtn" class="active" title="Dashboard (Attack Menu)">
+    <i class="fas fa-bolt"></i>
+    <span>BOARD</span>
+  </button>
+
+  <button id="navMusicBtn" title="Music (Play Lagu)">
+    <i class="fas fa-music"></i>
+    <span>MUSIK</span>
+  </button>
+
+  <button id="navIpCheckBtn" title="IP Checker (IP Information)">
+    <i class="fas fa-globe"></i>
+    <span>CEK IP</span>
+  </button>
+
+  <button id="navYoutubeBtn" title="Youtube (Downloader)">
+    <i class="fab fa-youtube"></i>
+    <span>YOUTUBE</span>
+  </button>
+
+  <button id="navChatAiBtn" title="AI Chat (AI Assistant)">
+    <i class="fas fa-robot"></i>
+    <span>AI</span>
+  </button>
+</div>
+
+<script>
+  const navAttackBtn = document.getElementById('navAttackBtn');
+  const navMusicBtn = document.getElementById('navMusicBtn');
+  const navIpCheckBtn = document.getElementById('navIpCheckBtn');
+  const navYoutubeBtn = document.getElementById('navYoutubeBtn');
+  const navChatAiBtn = document.getElementById('navChatAiBtn');
+
+  function setActive(btn) {
+    document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // === Tombol DASBOARD ===
+  navAttackBtn.addEventListener('click', () => {
+    setActive(navAttackBtn);
+    showDashboard('attack');
+  });
+
+  // === Tombol MUSIK ===
+  navMusicBtn.addEventListener('click', () => {
+    setActive(navMusicBtn);
+    showDashboard('music');
+  });
+
+  // === Tombol CEK IP ===
+  navIpCheckBtn.addEventListener('click', () => {
+    setActive(navIpCheckBtn);
+    showDashboard('ipcheck');
+  });
+
+  // === Tombol YOUTUBE ===
+  navYoutubeBtn.addEventListener('click', () => {
+    setActive(navYoutubeBtn);
+    showDashboard('youtube');
+  });
+
+  // === Tombol CHAT AI ===
+  navChatAiBtn.addEventListener('click', () => {
+    setActive(navChatAiBtn);
+    showDashboard('chat-ai');
+  });
+</script>
+<!-- ======= End Bottom Navigation ======= -->
+  <!-- Asep Rokok Background -->
+  <div id="smoke-background"></div>
+  
+  <button id="openSidebarBtn"><i class="fas fa-bars"></i></button>
+  
+  <!-- Profile Icon di Kanan Atas -->
+  <div id="profileIcon">
+    <i class="fas fa-user"></i>
+  </div>
+
+  <!-- Profile Info Panel -->
+  <div id="overlay"></div>
+  <div id="profileInfoPanel">
+    <div class="profile-info-header">
+      <div class="profile-info-title">Account Information</div>
+      <button id="closeProfileInfoBtn"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="profile-info-content">
+      <img src="https://autoresbot.com/tmp_files/4d36709a-5660-4294-b797-3bc24500425f.jpg" alt="Profile Avatar" class="profile-info-avatar" />
+      <div class="profile-info-username">${username || 'Unknown'}</div>
+      <div class="profile-info-details">
+    <div class="profile-info-item">
+        <span class="profile-info-label">Username:</span>
+        <span class="profile-info-value">${username || 'Unknown'}</span>
+    </div>
+    <div class="profile-info-item">
+        <span class="profile-info-label">Password:</span>
+        <span class="profile-info-value">${userKey || 'Unknown'}</span> <!-- ✅ INI YANG BENAR -->
+    </div>
+    <div class="profile-info-item">
+        <span class="profile-info-label">Role:</span>
+        <span class="profile-info-value">Owner</span>
+    </div>
+    <div class="profile-info-item">
+        <span class="profile-info-label">Expired:</span>
+        <span class="profile-info-value">${formattedTime}</span>
+    </div>
+    <div class="profile-info-item">
+        <span class="profile-info-label">Status:</span>
+        <span class="profile-info-value">Active</span>
+    </div>
+</div>
+    </div>
+  </div>
+
+  <div class="app-wrapper">
+    <h1 class="main-title">Vortex</h1>
+
+    <!-- Dashboard Attack Menu -->
+    <div id="attackDashboard" class="dashboard-page active">
+        <div class="container profile-card">
+            <img src="https://autoresbot.com/tmp_files/4d36709a-5660-4294-b797-3bc24500425f.jpg" alt="Logo" class="profile-logo" />
+            <div class="profile-username">${username || 'Unknown'}</div>
+            <div class="profile-details">
+          Role: <span>Owner</span> • Exp: <span>${formattedTime}</span></div>
+        </div>
+
+        <div class="container">
+            <div class="section-title">Target Number</div>
+            <input type="text" id="targetNumberInput" placeholder="e.g. 628xxxxxxx" />
+
+            <div class="section-title">Select Bug</div>
+            <select id="bugSelect">
+                <option value="" disabled selected>Select Bug...</option>
+                <option value="delay">DELAY HARD</option>
+                <option value="crashios">CRASH</option>
+                <option value="blank">BLANK</option>
+            </select>
+
+            <button class="execute-button" id="executeBtn"><i class="fas fa-bug"></i> SEND BUG</button>
+
+            <!-- Footer action dihapus sesuai permintaan -->
+        </div>
+    </div>
+    
+    <!-- Dashboard Music Player -->
+    <div id="musicDashboard" class="dashboard-page container music-player-dashboard">
+        <div class="section-title">Music Player</div>
+
+        <div class="song-title" id="songTitle">
+            <i class="fas fa-headphones-alt"></i> Lagu: Chill House Mix
+        </div>
+
+        <div class="player-controls">
+            <button id="playPauseBtn"><i class="fas fa-play"></i></button>
+            <button id="stopBtn"><i class="fas fa-stop"></i></button>
+        </div>
+
+        <div id="progressContainer">
+            <div id="progressBar"></div>
+        </div>
+
+        <div class="time-display">
+            <span id="currentTime">0:00</span>
+            <span id="duration">0:00</span>
+        </div>
+    </div>
+
+    <!-- Dashboard Cek IP -->
+    <div id="ipCheckDashboard" class="dashboard-page container">
+        <div class="section-title">Cek Informasi IP</div>
+        
+        <input type="text" id="ipAddressInput" placeholder="Masukkan IP Address (kosongkan untuk IP Anda)" />
+        
+        <button class="execute-button" id="checkIpBtn">
+            <i class="fas fa-search"></i> Cek Informasi IP
+        </button>
+
+        <div class="loading-spinner" id="ipLoading">
+            <div class="spinner"></div>
+            <div>Mencari informasi IP...</div>
+        </div>
+
+        <div class="ip-info-result" id="ipInfoResult">
+            <div class="ip-info-item">
+                <span class="ip-info-label">IP Address:</span>
+                <span class="ip-info-value" id="ipAddress">-</span>
+            </div>
+            <div class="ip-info-item">
+                <span class="ip-info-label">Kota:</span>
+                <span class="ip-info-value" id="ipCity">-</span>
+            </div>
+            <div class="ip-info-item">
+                <span class="ip-info-label">Region:</span>
+                <span class="ip-info-value" id="ipRegion">-</span>
+            </div>
+            <div class="ip-info-item">
+                <span class="ip-info-label">Negara:</span>
+                <span class="ip-info-value" id="ipCountry">-</span>
+            </div>
+            <div class="ip-info-item">
+                <span class="ip-info-label">Kode Negara:</span>
+                <span class="ip-info-value" id="ipCountryCode">-</span>
+            </div>
+            <div class="ip-info-item">
+                <span class="ip-info-label">Zona Waktu:</span>
+                <span class="ip-info-value" id="ipTimezone">-</span>
+            </div>
+            <div class="ip-info-item">
+                <span class="ip-info-label">ISP:</span>
+                <span class="ip-info-value" id="ipIsp">-</span>
+            </div>
+            <div class="ip-info-item">
+                <span class="ip-info-label">Organisasi:</span>
+                <span class="ip-info-value" id="ipOrg">-</span>
+            </div>
+            <div class="ip-info-item">
+                <span class="ip-info-label">Latitude:</span>
+                <span class="ip-info-value" id="ipLat">-</span>
+            </div>
+            <div class="ip-info-item">
+                <span class="ip-info-label">Longitude:</span>
+                <span class="ip-info-value" id="ipLon">-</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard YouTube Downloader -->
+    <div id="youtubeDashboard" class="dashboard-page container youtube-downloader">
+        <div class="section-title">YouTube Downloader</div>
+        
+        <input type="text" id="youtubeQuery" placeholder="Masukkan judul atau link YouTube..." />
+        
+        <button class="execute-button" id="searchYoutubeBtn">
+            <i class="fas fa-search"></i> Cari Video
+        </button>
+
+        <div id="youtubeStatus" style="margin: 15px 0; min-height: 20px;"></div>
+
+        <div id="youtubeResults"></div>
+
+        <div class="youtube-player" id="youtubePlayer">
+            <h3 id="youtubeTitle"></h3>
+            <p id="youtubeChannel"></p>
+            <p id="youtubeDuration"></p>
+            <audio class="youtube-audio" id="youtubeAudio" controls></audio>
+            <div class="youtube-controls">
+                <button id="youtubePlayPauseBtn" onclick="toggleYoutubePlayPause()">
+                    <i class="fas fa-play"></i> Play
+                </button>
+                <button onclick="downloadYoutubeMusic()">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Chat AI -->
+    <div id="chatAiDashboard" class="dashboard-page container chat-ai-dashboard">
+        <div class="section-title">Vortex AI Assistant</div>
+        
+        <div class="api-status">
+            <i class="fas fa-check-circle"></i> Gemini 2.5 Flash - Siap digunakan!
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="chat-message ai-message">
+                <div class="message-sender">Vortex AI</div>
+                <div class="message-content">Halo! Saya Vortex AI Assistant yang menggunakan Gemini 2.5 Flash. Silakan tanyakan apa saja kepada saya! Saya siap membantu Anda dengan berbagai pertanyaan.</div>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <i class="fas fa-robot"></i> Vortex AI sedang mengetik...
+        </div>
+
+        <div class="chat-input-container">
+            <textarea class="chat-input" id="chatInput" placeholder="Ketik pertanyaan Anda di sini..." rows="3"></textarea>
+            <button class="send-button" id="sendMessageBtn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+
+        <button class="clear-chat-btn" onclick="clearChat()">
+            <i class="fas fa-trash"></i> Hapus Percakapan
+        </button>
+    </div>
+
+<div id="darkverseDashboard" class="dashboard-page darkverse-dashboard">
+  <div class="container" style="background:transparent; border:none; box-shadow:none; padding:0;">
+
+    <!-- 🖼️ SLIDER FOTO + TEKS DI ATAS FOTO - FIXED SIZE -->
+    <div class="darkverse-slider">
+      <div class="slide-track">
+        <img src="https://autoresbot.com/tmp_files/4d36709a-5660-4294-b797-3bc24500425f.jpg" alt="">
+        <img src="https://c.top4top.io/p_3588hp4sk0.jpeg" alt="">
+      </div>
+      <div class="darkverse-text-overlay">
+        <h2>VORTEX</h2>
+        <p>Buy Acces Chat <span>@dullnotdev2</span></p>
+      </div>
+    </div>
+
+    <style>
+      .darkverse-slider {
+        position: relative;
+        width: 100%;
+        height: 180px; /* Diperkecil dari 200px */
+        overflow: hidden;
+        border-radius: 18px;
+        margin-bottom: 20px;
+        border: 1px solid white;
+        box-shadow: 0 0 20px rgba(255,255,255,1);
+      }
+      .darkverse-slider .slide-track {
+        display: flex;
+        width: 300%;
+        height: 100%;
+        transition: transform 0.8s ease;
+      }
+      .darkverse-slider img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;            /* Isi penuh frame */
+  object-position: center center; /* Fokus di tengah gambar */
+  transform: scale(1.10);       /* 🔍 Sedikit zoom biar pas tapi tidak kepotong */
+  flex-shrink: 0;
+  filter: brightness(0.9);
+  border-radius: 18px;
+  transition: transform 0.5s ease, filter 0.5s ease;
+}
+
+      /* 🔮 TEKS DI ATAS FOTO */
+      .darkverse-text-overlay {
+        position: absolute;
+        bottom: 15px; /* Diperkecil dari 20px */
+        left: 15px; /* Diperkecil dari 20px */
+        z-index: 5;
+        text-shadow: 0 0 12px rgba(255, 255, 255, 1);
+      }
+      .darkverse-text-overlay h2 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 20px; /* Diperkecil dari 22px */
+        color: #E0E0E0;
+        margin: 0;
+      }
+      .darkverse-text-overlay p {
+        color: #ccc;
+        font-size: 12px; /* Diperkecil dari 13px */
+        margin: 5px 0 0;
+      }
+      .darkverse-text-overlay span {
+        color: white;
+        font-weight: 600;
+      }
+    </style>
+
+    <script>
+      const track = document.querySelector(".darkverse-slider .slide-track");
+      const slides = document.querySelectorAll(".darkverse-slider img");
+      let index = 0;
+      let startX = 0;
+      let isDragging = false;
+      let autoSlide;
+
+      function autoNext() {
+        index = (index + 1) % slides.length;
+        updateSlide();
+      }
+
+      function updateSlide() {
+        track.style.transform = `translateX(-${index * 100}%)`;
+      }
+
+      function startAutoSlide() {
+        autoSlide = setInterval(autoNext, 4000);
+      }
+
+      function stopAutoSlide() {
+        clearInterval(autoSlide);
+      }
+
+      // Geser manual (swipe HP)
+      track.addEventListener("touchstart", (e) => {
+        stopAutoSlide();
+        isDragging = true;
+        startX = e.touches[0].clientX;
+      });
+
+      track.addEventListener("touchmove", (e) => {
+        if (!isDragging) return;
+        const moveX = e.touches[0].clientX - startX;
+        track.style.transform = `translateX(calc(-${index * 100}% + ${moveX}px))`;
+      });
+
+      track.addEventListener("touchend", (e) => {
+        isDragging = false;
+        const diff = e.changedTouches[0].clientX - startX;
+        if (Math.abs(diff) > 50) {
+          if (diff > 0) index = Math.max(0, index - 1);
+          else index = Math.min(slides.length - 1, index + 1);
+        }
+        updateSlide();
+        startAutoSlide();
+      });
+
+      startAutoSlide();
+    </script>
+
+    <!-- MENU UTAMA YANG DIPERBAIKI -->
+    <div style="display:flex; justify-content:space-around; flex-wrap:wrap; margin-bottom:25px;">
+      <div style="width:75px; text-align:center; color:white; cursor:pointer;" onclick="showDashboard('attack')">
+        <div style="width:65px; height:65px; border-radius:50%; background:black; border:1px solid white; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(255,255,255,1);">
+          <i class="fas fa-bolt" style="color:white; font-size:20px;"></i>
+        </div>
+        <div style="font-size:12px;">BOARD</div>
+      </div>
+      <div style="width:75px; text-align:center; color:white; cursor:pointer;" onclick="showDashboard('music')">
+        <div style="width:65px; height:65px; border-radius:50%; background:black; border:1px solid white; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(255,255,255,1);">
+          <i class="fas fa-music" style="color:white; font-size:20px;"></i>
+        </div>
+        <div style="font-size:12px;">MUSIK</div>
+      </div>
+      <div style="width:75px; text-align:center; color:white; cursor:pointer;" onclick="showDashboard('ipcheck')">
+        <div style="width:65px; height:65px; border-radius:50%; background:black; border:1px solid white; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(255,255,255,1);">
+          <i class="fas fa-globe" style="color:white; font-size:20px;"></i>
+        </div>
+        <div style="font-size:12px;">CEK IP</div>
+      </div>
+      <div style="width:75px; text-align:center; color:white; cursor:pointer;" onclick="showDashboard('youtube')">
+        <div style="width:65px; height:65px; border-radius:50%; background:black; border:1px solid white; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(255,255,255,1);">
+          <i class="fab fa-youtube" style="color:white; font-size:20px;"></i>
+        </div>
+        <div style="font-size:12px;">YOUTUBE</div>
+      </div>
+    </div>
+
+    <!-- MENU BARIS KEDUA -->
+    <div style="display:flex; justify-content:space-around; flex-wrap:wrap; margin-bottom:25px;">
+      <div style="width:75px; text-align:center; color:white; cursor:pointer;" onclick="showDashboard('chat-ai')">
+        <div style="width:65px; height:65px; border-radius:50%; background:black; border:1px solid white; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(255,255,255,1);">
+          <i class="fas fa-robot" style="color:white; font-size:20px;"></i>
+        </div>
+        <div style="font-size:12px;">AI</div>
+      </div>
+      <div style="width:75px; text-align:center; color:white; cursor:pointer;" onclick="openProfileInfo()">
+        <div style="width:65px; height:65px; border-radius:50%; background:black; border:1px solid white; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(255,255,255,1);">
+          <i class="fas fa-user" style="color:white; font-size:20px;"></i>
+        </div>
+        <div style="font-size:12px;">PROFILE</div>
+      </div>
+      <div style="width:75px; text-align:center; color:white; cursor:pointer;" onclick="window.location.href='https://t.me/dullnotdev2'">
+        <div style="width:65px; height:65px; border-radius:50%; background:black; border:1px solid white; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(255,255,255,1);">
+          <i class="fab fa-telegram" style="color:#white; font-size:20px;"></i>
+        </div>
+        <div style="font-size:12px;">DEV</div>
+      </div>
+      <div style="width:75px; text-align:center; color:white; cursor:pointer;" onclick="window.location.href='/logout'">
+        <div style="width:65px; height:65px; border-radius:50%; background:black; border:1px solid white; display:flex; justify-content:center; align-items:center; margin:0 auto 8px; box-shadow:0 0 10px rgba(255,255,255,1);">
+          <i class="fas fa-sign-out-alt" style="color:white; font-size:20px;"></i>
+        </div>
+        <div style="font-size:12px;">LOGOUT</div>
+      </div>
+    </div>
+
+    <!-- TELEGRAM CHANNEL - PERBAIKAN: LINK YANG DAPAT DIKLIK -->
+    <div style="background:linear-gradient(90deg,black,black); border:1px solid white; border-radius:14px; padding:15px; text-align:center; color:white; margin-bottom:20px; cursor: pointer;" onclick="window.open('https://t.me/vortexch1', '_blank')">
+      <i class="fas fa-fire" style="color:#ff4444; margin-right:8px;"></i>
+      Telegram Channel: <span style="color:white;">Join To Get More Info!</span>
+    </div>
+
+    <!-- SERVER STATS -->
+    <div style="background:linear-gradient(180deg,black,black); border:1px solid white; border-radius:14px; padding:20px;">
+      <div style="font-family:'Orbitron',sans-serif; color:white; font-size:18px; margin-bottom:15px; text-align:center;">
+        <i class="fas fa-chart-bar"></i> Server Stats
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid white; padding-top:10px;">
+        <div style="display:flex; align-items:center; gap:8px; color:#white; font-size:14px;">
+          <i class="fas fa-user"></i> Online Users
+        </div>
+        <div style="color:white; font-family:'Orbitron',sans-serif;">0</div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid white; padding-top:10px; margin-top:8px;">
+        <div style="display:flex; align-items:center; gap:8px; color:white; font-size:14px;">
+          <i class="fas fa-rocket"></i> Active Sender
+        </div>
+        <div style="color:white; font-family:'Orbitron',sans-serif;">0</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+    </div>
+
+  </div> <div id="popup" class="popup">✅ Success Send Bug</div>
+
+  <audio id="backgroundMusic" loop>
+      <source src="https://files.catbox.moe/rm7kaw.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+  </audio>
+
+  <script>
+    // =======================================
+    // GEMINI API CONFIGURATION - GEMINI 2.5 FLASH
+    // =======================================
+    const GEMINI_API_KEY = 'AIzaSyB7URXCSpZtdCdKCjBGkvV27nLURDDn1FM'; // Ganti dengan API key Gemini 2.5 Flash Anda
+    const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+
+    // Utility function to format time (seconds to M:SS)
+    function formatTime(seconds) {
+        if (isNaN(seconds)) return '0:00';
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        const paddedSeconds = remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
+        
+        return minutes + ':' + paddedSeconds;
+    }
+
+    // =======================================
+    // DOM ELEMENTS
+    // =======================================
+    const targetNumberInput = document.getElementById('targetNumberInput');
+    const bugSelect = document.getElementById('bugSelect');
+    const executeBtn = document.getElementById('executeBtn');
+    const popup = document.getElementById('popup');
+    
+    // Sidebar Elements
+    const openSidebarBtn = document.getElementById('openSidebarBtn');
+
+    // Dashboard Elements
+    const attackDashboard = document.getElementById('attackDashboard');
+    const musicDashboard = document.getElementById('musicDashboard');
+    const ipCheckDashboard = document.getElementById('ipCheckDashboard');
+    const youtubeDashboard = document.getElementById('youtubeDashboard');
+    const chatAiDashboard = document.getElementById('chatAiDashboard');
+    const darkverseDashboard = document.getElementById('darkverseDashboard');
+    
+    // Music Player Elements
+    const backgroundMusic = document.getElementById('backgroundMusic');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressContainer = document.getElementById('progressContainer');
+    const currentTimeDisplay = document.getElementById('currentTime');
+    const durationDisplay = document.getElementById('duration');
+    const songTitleDisplay = document.getElementById('songTitle');
+    
+    // Profile Elements
+    const profileIcon = document.getElementById('profileIcon');
+    const profileInfoPanel = document.getElementById('profileInfoPanel');
+    const closeProfileInfoBtn = document.getElementById('closeProfileInfoBtn');
+    const overlay = document.getElementById('overlay');
+    
+    // IP Check Elements
+    const ipAddressInput = document.getElementById('ipAddressInput');
+    const checkIpBtn = document.getElementById('checkIpBtn');
+    const ipLoading = document.getElementById('ipLoading');
+    const ipInfoResult = document.getElementById('ipInfoResult');
+    
+    // YouTube Elements
+    const youtubeQuery = document.getElementById('youtubeQuery');
+    const searchYoutubeBtn = document.getElementById('searchYoutubeBtn');
+    const youtubeStatus = document.getElementById('youtubeStatus');
+    const youtubeResults = document.getElementById('youtubeResults');
+    const youtubePlayer = document.getElementById('youtubePlayer');
+    const youtubeTitle = document.getElementById('youtubeTitle');
+    const youtubeChannel = document.getElementById('youtubeChannel');
+    const youtubeDuration = document.getElementById('youtubeDuration');
+    const youtubeAudio = document.getElementById('youtubeAudio');
+    const youtubePlayPauseBtn = document.getElementById('youtubePlayPauseBtn');
+    
+    // Chat AI Elements
+    const chatContainer = document.getElementById('chatContainer');
+    const chatInput = document.getElementById('chatInput');
+    const sendMessageBtn = document.getElementById('sendMessageBtn');
+    const typingIndicator = document.getElementById('typingIndicator');
+    
+    let isPlaying = false; 
+    let selectedBugMode = ''; 
+    let currentYoutubeAudio = null;
+    let currentYoutubeData = null;
+    let previousDashboard = 'attack'; // Menyimpan dashboard sebelumnya
+
+    // =======================================
+    // CORE APP LOGIC - FIXED VALIDATION
+    // =======================================
+    function isValidNumber(number) {
+      const cleanedNumber = number.replace(/[\s\+\-\(\)]/g, '');
+      const pattern = /^\d{7,15}$/;
+      return pattern.test(cleanedNumber);
+    }
+
+    function updateExecuteButtonState() {
+      const numberValid = isValidNumber(targetNumberInput.value.trim());
+      const bugSelected = selectedBugMode !== '';
+      executeBtn.disabled = !(numberValid && bugSelected);
+    }
+    
+    // Event listener for target number input and bug selection
+    targetNumberInput.addEventListener('input', updateExecuteButtonState);
+    bugSelect.addEventListener('change', () => {
+        selectedBugMode = bugSelect.value;
+        updateExecuteButtonState();
+    });
+
+    // =======================================
+    // DASHBOARD SWITCHING - FIXED FUNCTION
+    // =======================================
+    function showDashboard(dashboardId) {
+        // Simpan dashboard sebelumnya jika bukan darkverse
+        if (dashboardId !== 'darkverse') {
+            previousDashboard = dashboardId;
+        }
+        
+        document.querySelectorAll('.dashboard-page').forEach(el => {
+            el.classList.remove('active');
+        });
+        
+        if (dashboardId === 'music') {
+            musicDashboard.classList.add('active');
+            songTitleDisplay.innerHTML = '<i class="fas fa-headphones-alt"></i> Lagu: Chill House Mix';
+        } else if (dashboardId === 'attack') {
+            attackDashboard.classList.add('active');
+        } else if (dashboardId === 'ipcheck') {
+            ipCheckDashboard.classList.add('active');
+        } else if (dashboardId === 'youtube') {
+            youtubeDashboard.classList.add('active');
+        } else if (dashboardId === 'chat-ai') {
+            chatAiDashboard.classList.add('active');
+        } else if (dashboardId === 'darkverse') {
+            darkverseDashboard.classList.add('active');
+        }
+    }
+
+    // =======================================
+    // TOGGLE DARKVERSE DASHBOARD
+    // =======================================
+    function toggleDarkverseDashboard() {
+        const isDarkverseActive = darkverseDashboard.classList.contains('active');
+        
+        if (isDarkverseActive) {
+            // Kembali ke dashboard sebelumnya
+            showDashboard(previousDashboard);
+        } else {
+            // Tampilkan darkverse dashboard
+            showDashboard('darkverse');
+        }
+    }
+
+    // =======================================
+    // PROFILE INFO PANEL FUNCTIONS
+    // =======================================
+    function openProfileInfo() {
+        profileInfoPanel.classList.add('active');
+        overlay.classList.add('active');
+    }
+
+    function closeProfileInfo() {
+        profileInfoPanel.classList.remove('active');
+        overlay.classList.remove('active');
+    }
+
+    // =======================================
+    // MUSIC PLAYER FUNCTIONS
+    // =======================================
+    
+    function playMusic() {
+        const playPromise = backgroundMusic.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                isPlaying = true;
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            }).catch(error => {
+                console.error("Gagal memutar musik:", error);
+                alert("Gagal memutar musik. Silakan coba klik tombol Play lagi.");
+            });
+        }
+    }
+
+    function pauseMusic() {
+        backgroundMusic.pause();
+        isPlaying = false;
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+    }
+
+    function togglePlayPause() {
+        if (backgroundMusic.paused) { 
+            playMusic();
+        } else {
+            pauseMusic();
+        }
+    }
+
+    function stopMusic() {
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0; 
+        isPlaying = false;
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        progressBar.style.width = '0%';
+        currentTimeDisplay.textContent = '0:00';
+    }
+    
+    // =======================================
+    // IP CHECK FUNCTIONS
+    // =======================================
+    async function checkIPInfo() {
+        const ipAddress = ipAddressInput.value.trim();
+        ipLoading.classList.add('active');
+        ipInfoResult.classList.remove('active');
+        
+        try {
+            let apiUrl = 'https://ipapi.co/json/';
+            if (ipAddress) {
+                const ipPattern = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+                if (!ipPattern.test(ipAddress)) {
+                    throw new Error('Format IP address tidak valid');
+                }
+                apiUrl = `https://ipapi.co/${ipAddress}/json/`;
+            }
+            
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.reason || 'Gagal mendapatkan informasi IP');
+            }
+            
+            document.getElementById('ipAddress').textContent = data.ip || '-';
+            document.getElementById('ipCity').textContent = data.city || '-';
+            document.getElementById('ipRegion').textContent = data.region || '-';
+            document.getElementById('ipCountry').textContent = data.country_name || '-';
+            document.getElementById('ipCountryCode').textContent = data.country_code || '-';
+            document.getElementById('ipTimezone').textContent = data.timezone || '-';
+            document.getElementById('ipIsp').textContent = data.org || data.asn || '-';
+            document.getElementById('ipOrg').textContent = data.org || '-';
+            document.getElementById('ipLat').textContent = data.latitude || '-';
+            document.getElementById('ipLon').textContent = data.longitude || '-';
+            
+            ipInfoResult.classList.add('active');
+            
+        } catch (error) {
+            alert('Error: ' + error.message);
+            console.error('IP Check Error:', error);
+        } finally {
+            ipLoading.classList.remove('active');
+        }
+    }
+    
+    // =======================================
+    // YOUTUBE DOWNLOADER FUNCTIONS
+    // =======================================
+    function showYoutubePopup(title, message) {
+        popup.innerHTML = `<strong>${title}</strong><br>${message}`;
+        popup.style.display = 'block';
+        setTimeout(() => { popup.style.display = "none"; }, 2500);
+    }
+
+    // 🔍 CARI LAGU / VIDEO YOUTUBE
+    async function searchYoutube() {
+        const query = youtubeQuery.value.trim();
+        if (!query) return showYoutubePopup("Error", "Masukkan kata kunci dulu!");
+
+        youtubeStatus.innerHTML = `<span class="status-indicator status-processing"></span> Mencari...`;
+        youtubeResults.innerHTML = '';
+        youtubePlayer.classList.remove('active');
+
+        try {
+            const res = await fetch(`https://api.siputzx.my.id/api/s/youtube?query=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            const results = data?.data;
+            if (!results || !results.length) {
+                youtubeStatus.innerHTML = `<span class="status-indicator status-error"></span> Tidak ada hasil ditemukan`;
+                return;
+            }
+            displayYoutubeResults(results);
+            youtubeStatus.innerHTML = `<span class="status-indicator status-success"></span> Ditemukan ${results.length} hasil`;
+        } catch (err) {
+            console.error(err);
+            youtubeStatus.innerHTML = `<span class="status-indicator status-error"></span> Gagal mencari: ${err.message}`;
+        }
+    }
+
+    // 🧾 TAMPILKAN HASIL YOUTUBE
+    function displayYoutubeResults(results) {
+  youtubeResults.innerHTML = "";
+
+  results.forEach((res) => {
+    // Ambil durasi dari berbagai kemungkinan struktur data API
+    const durationText =
+      res.duration?.simpleText ||
+      res.duration?.formatted ||
+      res.duration?.text ||
+      res.lengthText ||
+      res.duration ||
+      "??:??";
+
+    const thumbnail =
+      res.thumbnail?.url ||
+      res.thumbnail?.[0]?.url ||
+      res.thumbnails?.[0]?.url ||
+      res.thumbnail ||
+      "https://via.placeholder.com/80x60?text=No+Thumb";
+
+    const item = document.createElement("div");
+    item.className = "search-result-item";
+    item.innerHTML = `
+      <img src="${thumbnail}" alt="thumb">
+      <div class="search-result-info">
+        <h5>${res.title}</h5>
+      </div>
+    `;
+    item.addEventListener("click", () => playYoutubeMusic(res));
+    youtubeResults.appendChild(item);
+  });
+}
+
+    // ▶️ PUTAR AUDIO YOUTUBE
+    async function playYoutubeMusic(data) {
+  youtubeStatus.innerHTML = `<span class="status-indicator status-processing"></span> Mengambil audio...`;
+
+  try {
+    const res = await fetch(`https://restapi-v2.simplebot.my.id/download/ytmp3?url=${encodeURIComponent(data.url)}`);
+    const js = await res.json();
+    const audioUrl = js?.result;
+    if (!audioUrl) throw new Error("URL audio tidak ditemukan");
+
+    currentYoutubeAudio = youtubeAudio;
+    currentYoutubeData = data;
+
+    // Ambil durasi saja (tanpa channel)
+    const durationText =
+      data.duration?.simpleText ||
+      data.duration?.formatted ||
+      data.duration?.text ||
+      data.lengthText ||
+      data.duration ||
+      "-";
+
+    youtubeTitle.textContent = data.title;
+    youtubeChannel.textContent = ""; // ❌ Hapus nama channel, tidak ditampilkan
+    youtubeDuration.textContent = "";
+    youtubeAudio.src = audioUrl;
+    youtubePlayer.classList.add("active");
+    youtubeStatus.innerHTML = `<span class="status-indicator status-success"></span> Siap diputar: ${data.title}`;
+  } catch (err) {
+    console.error(err);
+    youtubeStatus.innerHTML = `<span class="status-indicator status-error"></span> Gagal memutar: ${err.message}`;
+  }
+}
+
+    // ⏯️ PLAY / PAUSE YOUTUBE
+    function toggleYoutubePlayPause() {
+        const btn = youtubePlayPauseBtn;
+        const icon = btn.querySelector('i');
+        if (!currentYoutubeAudio) return;
+        if (currentYoutubeAudio.paused) {
+            currentYoutubeAudio.play();
+            icon.className = 'fas fa-pause';
+            btn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+        } else {
+            currentYoutubeAudio.pause();
+            icon.className = 'fas fa-play';
+            btn.innerHTML = '<i class="fas fa-play"></i> Play';
+        }
+    }
+
+    // 💾 DOWNLOAD MP3 YOUTUBE
+    function downloadYoutubeMusic() {
+        if (!currentYoutubeAudio || !currentYoutubeData) return showYoutubePopup("Error", "Tidak ada lagu yang sedang diputar");
+        const link = document.createElement('a');
+        link.href = currentYoutubeAudio.src;
+        link.download = `${currentYoutubeData.title}.mp3`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showYoutubePopup("Berhasil", `Mengunduh: ${currentYoutubeData.title}`);
+    }
+
+    // =======================================
+    // CHAT AI FUNCTIONS - GEMINI 2.5 FLASH
+    // =======================================
+    async function sendMessageToAI() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        // Tambahkan pesan user ke chat
+        addMessageToChat('user', message);
+        chatInput.value = '';
+        sendMessageBtn.disabled = true;
+
+        // Tampilkan typing indicator
+        typingIndicator.classList.add('active');
+
+        try {
+            const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: message
+                        }]
+                    }],
+                    generationConfig: {
+                        temperature: 0.7,
+                        topK: 40,
+                        topP: 0.95,
+                        maxOutputTokens: 2048,
+                    }
+                })
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error?.message || 'Terjadi kesalahan pada API Gemini');
+            }
+
+            if (!data.candidates || !data.candidates[0]) {
+                throw new Error('Tidak ada respons dari AI');
+            }
+
+            const aiResponse = data.candidates[0].content.parts[0].text;
+            addMessageToChat('ai', aiResponse);
+
+        } catch (error) {
+            console.error('Error calling Gemini API:', error);
+            addMessageToChat('ai', `Maaf, terjadi kesalahan: ${error.message}. Pastikan API key Gemini 2.5 Flash valid.`);
+        } finally {
+            typingIndicator.classList.remove('active');
+            sendMessageBtn.disabled = false;
+            chatInput.focus();
+        }
+    }
+
+    function addMessageToChat(sender, message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${sender}-message`;
+        
+        const senderDiv = document.createElement('div');
+        senderDiv.className = 'message-sender';
+        senderDiv.textContent = sender === 'user' ? 'Anda' : 'DEVIL-X AI';
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.textContent = message;
+        
+        messageDiv.appendChild(senderDiv);
+        messageDiv.appendChild(contentDiv);
+        chatContainer.appendChild(messageDiv);
+        
+        // Scroll ke bawah
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function clearChat() {
+        chatContainer.innerHTML = `
+            <div class="chat-message ai-message">
+                <div class="message-sender">DEVIL-X AI</div>
+                <div class="message-content">Halo! Saya DEVIL-X AI Assistant yang menggunakan Gemini 2.5 Flash. Silakan tanyakan apa saja kepada saya! Saya siap membantu Anda dengan berbagai pertanyaan.</div>
+            </div>
+        `;
+    }
+    
+    // =======================================
+    // ASEP ROKOK BACKGROUND FUNCTIONS
+    // =======================================
+    function createSmokeParticles() {
+      const smokeBackground = document.getElementById('smoke-background');
+      
+      for (let i = 0; i < 15; i++) {
+        setTimeout(() => {
+          createSmokeParticle(smokeBackground);
+        }, i * 200);
+      }
+      
+      setInterval(() => {
+        createSmokeParticle(smokeBackground);
+      }, 300);
+    }
+    
+    function createSmokeParticle(container) {
+      const particle = document.createElement('div');
+      particle.classList.add('smoke-particle');
+      
+      const leftPosition = Math.random() * 100;
+      particle.style.left = `${leftPosition}%`;
+      
+      const duration = 10 + Math.random() * 20;
+      particle.style.animationDuration = `${duration}s`;
+      
+      const size = 3 + Math.random() * 7;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      
+      const red = 200 + Math.floor(Math.random() * 55);
+      const alpha = 0.3 + Math.random() * 0.4;
+      particle.style.backgroundColor = `rgba(${red}, 50, 50, ${alpha})`;
+      
+      container.appendChild(particle);
+      
+      setTimeout(() => {
+        if (particle.parentNode) {
+          particle.parentNode.removeChild(particle);
+        }
+      }, duration * 1000);
+    }
+
+    // =======================================
+    // INITIALIZE EVENT LISTENERS
+    // =======================================
+    function initializeEventListeners() {
+        // Hamburger button event listener - MENGGUNAKAN TOGGLE
+        openSidebarBtn.addEventListener('click', toggleDarkverseDashboard);
+        
+        // Profile info panel event listeners
+        profileIcon.addEventListener('click', openProfileInfo);
+        closeProfileInfoBtn.addEventListener('click', closeProfileInfo);
+        overlay.addEventListener('click', closeProfileInfo);
+        
+        // Music player event listeners
+        playPauseBtn.addEventListener('click', togglePlayPause);
+        stopBtn.addEventListener('click', stopMusic);
+        
+        // Execute button event listener
+        executeBtn.addEventListener('click', () => {
+          const number = targetNumberInput.value.trim();
+          
+          if (!number) {
+            alert("Silakan masukkan nomor target.");
+            return;
+          }
+          
+          if (selectedBugMode === '') {
+              alert("Silakan pilih jenis bug terlebih dahulu.");
+              return;
+          }
+
+          popup.style.display = "block";
+          
+          const cleanNumber = number.replace(/[^\d+]/g, '');
+          
+          window.location.href = '/execution?mode=' + selectedBugMode + '&target=' + encodeURIComponent(cleanNumber);
+          
+          setTimeout(() => { popup.style.display = "none"; }, 2000); 
+        });
+
+        // IP Check event listener
+        checkIpBtn.addEventListener('click', checkIPInfo);
+        
+        // Enter key untuk IP check
+        ipAddressInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkIPInfo();
+            }
+        });
+
+        // YouTube event listeners
+        searchYoutubeBtn.addEventListener('click', searchYoutube);
+        
+        // Enter key untuk YouTube search
+        youtubeQuery.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchYoutube();
+            }
+        });
+
+        // Chat AI event listeners
+        sendMessageBtn.addEventListener('click', sendMessageToAI);
+        
+        // Enter key untuk Chat AI (Shift+Enter untuk new line)
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessageToAI();
+            }
+        });
+
+        // Auto-resize textarea
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    }
+
+    // Update progress bar and time display
+    backgroundMusic.addEventListener('timeupdate', () => {
+        
+        if (!backgroundMusic.paused && isPlaying !== true) {
+            isPlaying = true;
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        }
+
+        if (!backgroundMusic.duration) return;
+
+        const progressPercent = (backgroundMusic.currentTime / backgroundMusic.duration) * 100;
+        progressBar.style.width = progressPercent + '%'; 
+        currentTimeDisplay.textContent = formatTime(backgroundMusic.currentTime);
+    });
+
+    // Update duration when metadata is loaded
+    backgroundMusic.addEventListener('loadedmetadata', () => {
+        durationDisplay.textContent = formatTime(backgroundMusic.duration);
+    });
+    
+    // Seek functionality (klik di garis progress)
+    progressContainer.addEventListener('click', (e) => {
+        const rect = progressContainer.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const width = rect.width;
+        
+        const duration = backgroundMusic.duration;
+        if (isNaN(duration)) return; 
+
+        const newTime = (clickX / width) * duration;
+        backgroundMusic.currentTime = newTime;
+    });
+
+    // Initialize & Event Listeners
+    document.addEventListener('DOMContentLoaded', () => {
+        bugSelect.value = ''; 
+        updateExecuteButtonState();
+        
+        // Initialize all event listeners
+        initializeEventListeners();
+        
+        // Initialize smoke background
+        createSmokeParticles();
+    });
+  </script>
+</body>
+</html>
